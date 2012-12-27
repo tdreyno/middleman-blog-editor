@@ -1,21 +1,83 @@
 <script type='text/x-handlebars' data-template-name='application'>
-  {{outlet body}}
+  <div class="row">
+    <div class="twelve columns">
+      <h2><a {{action goHome this href=true}}><%= @options.admin_title %></a></h2>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row">
+    {{outlet body}}
+  </div>
+
 </script>
 
 <script type='text/x-handlebars' data-template-name='articles'>
-  <h1>Articles</h1>
+  <div class="twelve columns">
+    <div class="row">
+      <div class="eight columns">
+        <h2>All Articles</h2>
+      </div>
+      <div class="four columns">
+        <p class="right"><button class="button small foundicon-plus">Create New Article</button></p>
+      </div>
+    </div>
 
-  <ol>
-    {{#each controllers.articlesController}}
-      <li><a {{action editArticle this href=true}}>{{title}}</a></li>
-    {{/each}}
-  <ol>
+    <hr>
+
+    <table width="100%">
+      <tr>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Tags</th>
+        <th>Published</th>
+        <th>Actions</th>
+      </tr>
+      {{#collection contentBinding="controllers.articlesController" tagName="tbody"}}
+        <td>
+          {{view.content.title}}
+        </td>
+        <td>
+          {{view.content.date}}
+        </td>
+        <td>
+          {{view.content.tags}}
+        </td>
+        <td>
+          {{#if view.content.published}}
+            <span class="foundicon-checkmark"></span>
+          {{else}}
+            <span class="foundicon-error"></span>
+          {{/if}}
+        </td>
+        <td>
+          <a class="button tiny" {{action editArticle view.content href=true}}>
+            <span class="foundicon-edit"></span> Edit
+          </a>
+          <a class="button tiny alert" onclick="confirm('Sure?');">
+            <span class="foundicon-remove"></span> Delete
+          </a>
+        </td>
+      {{/collection}}
+    </table>
+  </div>
 </script>
 
 <script type='text/x-handlebars' data-template-name='edit-article'>
-  <h1>Edit Article</h1>
+  <div class="twelve columns">
+    <h3>Edit Article</h3>
 
-  {{view Ember.TextField valueBinding="title"}}
+    {{view Ember.TextField valueBinding="title"}}
 
-  {{view App.CKEditorView valueBinding="body"}}
+    {{view App.CKEditorView valueBinding="body"}}
+
+    <hr>
+    <div class="row">
+      <div class="twelve columns">
+        <p class="left"><a class="button alert" {{action goHome this href=true}}>Cancel</a></p>
+        <p class="right"><button class="button success">Save Article</button></p>
+      </div>
+    </div>
+
+  </div>
 </script>

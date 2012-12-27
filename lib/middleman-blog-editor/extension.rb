@@ -9,7 +9,8 @@ module Middleman::BlogEditor
   class Options
     KEYS = [
             :mount_at,
-            :accounts
+            :accounts,
+            :admin_title
            ]
     
     KEYS.each do |name|
@@ -31,8 +32,9 @@ module Middleman::BlogEditor
       options = Options.new(options_hash)
       yield options if block_given?
 
-      options.mount_at ||= '/editor'
-      options.accounts ||= []
+      options.admin_title ||= 'Middleman Blog Editor'
+      options.mount_at    ||= '/editor'
+      options.accounts    ||= []
 
       app.after_configuration do
         mm = self
@@ -70,7 +72,7 @@ module Middleman::BlogEditor
             :id => a.slug,
             :published => a.published?,
             :body => a.body,
-            :tags => a.tags,
+            :tags => a.tags.join(", "),
             :date => a.date,
             :slug => a.slug,
             :title => a.title,
@@ -92,7 +94,7 @@ module Middleman::BlogEditor
           :id => a.slug,
           :published => a.published?,
           :body => a.body,
-          :tags => a.tags,
+          :tags => a.tags.join(", "),
           :date => a.date,
           :slug => a.slug,
           :title => a.title,

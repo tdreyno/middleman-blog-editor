@@ -8,12 +8,12 @@ Purchasing will give access to private Rubygems server, direct gem file download
 
 * Minimal Admin Styles
 * Minimal Article Creation/Deletion/Editing
+* Publish/Unpublished Flag
 
 ## 0.4 ($12)
 
-* Tagging
+* Tag Editing
 * Frontmatter Editing
-* Publish/Unpublished Flag
 
 ## 0.6 ($18)
 
@@ -35,6 +35,7 @@ Purchasing will give access to private Rubygems server, direct gem file download
 
 ## 2.0
 
+* Admin Localization
 * Wordpress Importer
 * Disqus Integration
 * Edit non-local (Git Push/Pull)
