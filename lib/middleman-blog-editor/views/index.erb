@@ -1,0 +1,21 @@
+<script type='text/x-handlebars' data-template-name='application'>
+  {{outlet body}}
+</script>
+
+<script type='text/x-handlebars' data-template-name='articles'>
+  <h1>Articles</h1>
+
+  <ol>
+    {{#each controllers.articlesController}}
+      <li><a {{action editArticle this href=true}}>{{title}}</a></li>
+    {{/each}}
+  <ol>
+</script>
+
+<script type='text/x-handlebars' data-template-name='edit-article'>
+  <h1>Edit Article</h1>
+
+  {{view Ember.TextField valueBinding="title"}}
+
+  {{view App.CKEditorView valueBinding="body"}}
+</script>

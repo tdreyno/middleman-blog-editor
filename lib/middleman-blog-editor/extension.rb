@@ -1,6 +1,7 @@
 require "pry"
 require "pry-debugger"
 require "sinatra"
+require "json"
 
 # Blog Editor extension
 module Middleman::BlogEditor
@@ -39,7 +40,7 @@ module Middleman::BlogEditor
           use ::Rack::Auth::Basic, "Restricted Area" do |username, password|
             options.accounts.any? { |a| a.auth?(username, password) }
           end
-        	run ::Middleman::BlogEditor::App.new(mm)
+        	run ::Middleman::BlogEditor::App.new(mm, options)
         end
       end
     end
@@ -47,13 +48,58 @@ module Middleman::BlogEditor
   end
 
   class App < ::Sinatra::Base
-    def initialize(middleman)
+    set :static, true
+    set :root, File.dirname(__FILE__)
+
+    def initialize(middleman, options)
       @middleman = middleman
-      super
+      @options = options
+      super()
     end
 
   	get '/' do
-  		@middleman.inspect
+  		erb :index
   	end
+    
+    get '/api/articles' do
+      content_type :json
+
+      {
+        :articles => @middleman.blog.articles.map { |a| 
+          {
+            :id => a.slug,
+            :published => a.published?,
+            :body => a.body,
+            :tags => a.tags,
+            :date => a.date,
+            :slug => a.slug,
+            :title => a.title,
+            :frontmatter => a.data
+          }
+        }
+      }.to_json
+    end
+    
+    get '/api/articles/:slug' do
+      content_type :json
+
+      a = @middleman.blog.articles.find { |b| b.slug === params[:slug] }
+
+      return halt(404) unless a
+
+      {
+        :article => {
+          :id => a.slug,
+          :published => a.published?,
+          :body => a.body,
+          :tags => a.tags,
+          :date => a.date,
+          :slug => a.slug,
+          :title => a.title,
+          :frontmatter => a.data
+        }
+      }.to_json
+    end
+
   end
 end
