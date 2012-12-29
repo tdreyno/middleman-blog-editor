@@ -1,0 +1,8 @@
+.cke_reset, .cke_reset *, .cke_reset *:before, .cke_reset *:after,
+.cke_reset_all, .cke_reset_all *, .cke_reset_all *:before, .cke_reset_all *:after {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.hidden { display: none; }

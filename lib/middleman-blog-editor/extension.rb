@@ -1,7 +1,7 @@
 require "pry"
 require "pry-debugger"
-require "sinatra"
-require "json"
+require "middleman-blog-editor/editor_ui"
+require "middleman-blog-editor/rest_api"
 
 # Blog Editor extension
 module Middleman::BlogEditor
@@ -34,74 +34,23 @@ module Middleman::BlogEditor
 
       options.admin_title ||= 'Middleman Blog Editor'
       options.mount_at    ||= '/editor'
-      options.accounts    ||= []
+      # options.accounts    ||= []
 
       app.after_configuration do
         mm = self
         map(options.mount_at) do
-          use ::Rack::Auth::Basic, "Restricted Area" do |username, password|
-            options.accounts.any? { |a| a.auth?(username, password) }
+          # use ::Rack::Auth::Basic, "Restricted Area" do |username, password|
+          #   options.accounts.any? { |a| a.auth?(username, password) }
+          # end
+          
+          run ::Middleman::BlogEditor::EditorUI.new(mm, options)
+
+          map('/api') do
+            run ::Middleman::BlogEditor::RestAPI.new(mm, options)
           end
-        	run ::Middleman::BlogEditor::App.new(mm, options)
         end
       end
     end
     alias :included :registered
-  end
-
-  class App < ::Sinatra::Base
-    set :static, true
-    set :root, File.dirname(__FILE__)
-
-    def initialize(middleman, options)
-      @middleman = middleman
-      @options = options
-      super()
-    end
-
-  	get '/' do
-  		erb :index
-  	end
-    
-    get '/api/articles' do
-      content_type :json
-
-      {
-        :articles => @middleman.blog.articles.map { |a| 
-          {
-            :id => a.slug,
-            :published => a.published?,
-            :body => a.body,
-            :tags => a.tags.join(", "),
-            :date => a.date,
-            :slug => a.slug,
-            :title => a.title,
-            :frontmatter => a.data
-          }
-        }
-      }.to_json
-    end
-    
-    get '/api/articles/:slug' do
-      content_type :json
-
-      a = @middleman.blog.articles.find { |b| b.slug === params[:slug] }
-
-      return halt(404) unless a
-
-      {
-        :article => {
-          :id => a.slug,
-          :published => a.published?,
-          :body => a.body,
-          :tags => a.tags.join(", "),
-          :date => a.date,
-          :slug => a.slug,
-          :title => a.title,
-          :frontmatter => a.data
-        }
-      }.to_json
-    end
-
   end
 end

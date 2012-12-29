@@ -38,10 +38,12 @@
           {{view.content.title}}
         </td>
         <td>
-          {{view.content.date}}
+          {{view.content.dateString}}
         </td>
         <td>
-          {{view.content.tags}}
+          {{#each view.content.tagsArray}}
+            <span class="label">{{this}}</span>
+          {{/each}}
         </td>
         <td>
           {{#if view.content.published}}
@@ -67,17 +69,48 @@
   <div class="twelve columns">
     <h3>Edit Article</h3>
 
-    {{view Ember.TextField valueBinding="title"}}
+    <form class="custom">
 
-    {{view App.CKEditorView valueBinding="body"}}
+      <div class="row">
+        <div class="six columns">
+          <label>Title</label>
+          {{view Ember.TextField valueBinding="title"}}
 
-    <hr>
-    <div class="row">
-      <div class="twelve columns">
-        <p class="left"><a class="button alert" {{action goHome this href=true}}>Cancel</a></p>
-        <p class="right"><button class="button success">Save Article</button></p>
+          <label>Date</label>
+          {{view App.DateField valueBinding="dateString"}}
+
+          <label for="published">{{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}<span class="custom checkbox"></span> Published?</label>
+        </div>
+
+        <div class="six columns">
+          <label>URL</label>
+          {{view Ember.TextField valueBinding="permalink" disabled="true"}}
+
+          <label>Tags</label>
+          {{view Ember.TextField valueBinding="tags" disabled="true"}}
+
+          {{#if frontMatterPairs.length}}
+            <label>FrontMatter <span class="label secondary">readonly</span></label>
+            <ol>
+              {{#each frontMatterPairs}}
+                <li>{{key}}: {{value}}</li>
+              {{/each}}
+            </ol>
+          {{/if}}
+        </div>
       </div>
-    </div>
 
+      <label>Content</label>
+      {{view App.CKEditorView valueBinding="body"}}
+
+      <hr>
+      <div class="row">
+        <div class="twelve columns">
+          <p class="left"><a class="button alert" {{action goHome this href=true}}>Cancel</a></p>
+          <p class="right"><button class="button success">Save Article</button></p>
+        </div>
+      </div>
+
+    </form>
   </div>
 </script>
