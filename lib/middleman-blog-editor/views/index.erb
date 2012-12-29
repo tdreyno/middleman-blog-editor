@@ -1,7 +1,7 @@
 <script type='text/x-handlebars' data-template-name='application'>
   <div class="row">
     <div class="twelve columns">
-      <h2><a {{action goHome this href=true}}><%= @options.admin_title %></a></h2>
+      <h2><a {{action goHome this}}><%= @options.admin_title %></a></h2>
       <hr />
     </div>
   </div>
@@ -53,12 +53,16 @@
           {{/if}}
         </td>
         <td>
-          <a class="button tiny" {{action editArticle view.content href=true}}>
-            <span class="foundicon-edit"></span> Edit
-          </a>
-          <a class="button tiny alert" onclick="confirm('Sure?');">
-            <span class="foundicon-remove"></span> Delete
-          </a>
+          {{#if view.content.editable}}
+            <a class="button tiny" {{action editArticle view.content href=true}}>
+              <span class="foundicon-edit"></span> Edit
+            </a>
+            <a class="button tiny alert" onclick="confirm('Sure?');">
+              <span class="foundicon-remove"></span> Delete
+            </a>
+          {{else}}
+            Editing {{view.content.engine}} not yet supported
+          {{/if}}
         </td>
       {{/collection}}
     </table>
@@ -79,7 +83,11 @@
           <label>Date</label>
           {{view App.DateField valueBinding="dateString"}}
 
-          <label for="published">{{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}<span class="custom checkbox"></span> Published?</label>
+          <label for="published">
+            {{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}
+            {{view Ember.View tagName="span" classNames="custom checkbox" classNameBindings="published:checked"}}
+            Published?
+          </label>
         </div>
 
         <div class="six columns">
@@ -106,8 +114,8 @@
       <hr>
       <div class="row">
         <div class="twelve columns">
-          <p class="left"><a class="button alert" {{action goHome this href=true}}>Cancel</a></p>
-          <p class="right"><button class="button success">Save Article</button></p>
+          <p class="left"><a class="button alert" {{action cancel}}>Cancel</a></p>
+          <p class="right"><a class="button success" {{action save}}>Save Article</a></p>
         </div>
       </div>
 
