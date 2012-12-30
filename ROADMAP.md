@@ -7,13 +7,16 @@ Purchasing will give access to private Rubygems server, direct gem file download
 ## 0.2 ($6)
 
 * Minimal Admin Styles
-* Minimal Article Creation/Deletion/Editing (.html.erb only)
+* Minimal Article Creation/Deletion/Editing
+* WYSIWYG .html.erb files
+* Plaintext .html.* files
+* Publish/Unpublished Flag
 
 ## 0.4 ($12)
 
-* Publish/Unpublished Flag
 * Tag Editing
 * Frontmatter Editing
+* Direct link to editor from in the site preview
 
 ## 0.6 ($18)
 

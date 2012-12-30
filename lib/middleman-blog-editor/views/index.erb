@@ -19,7 +19,7 @@
         <h2>All Articles</h2>
       </div>
       <div class="four columns">
-        <p class="right"><button class="button small foundicon-plus">Create New Article</button></p>
+        <p class="right"><button class="button small"><span class="foundicon-plus"></span> Create New Article</button></p>
       </div>
     </div>
 
@@ -30,20 +30,22 @@
         <th>Title</th>
         <th>Date</th>
         <th>Tags</th>
-        <th>Published</th>
+        <th>Pub?</th>
         <th>Actions</th>
       </tr>
       {{#collection contentBinding="controllers.articlesController" tagName="tbody"}}
         <td>
-          {{view.content.title}}
+          {{view App.TooltipSpan titleBinding="view.content.source" contentBinding="view.content.title"}}
         </td>
         <td>
-          {{view.content.dateString}}
+          {{view App.TooltipSpan titleBinding="view.content.dateStringFull" contentBinding="view.content.dateString"}}
         </td>
         <td>
-          {{#each view.content.tagsArray}}
-            <span class="label">{{this}}</span>
-          {{/each}}
+          {{#if view.content.tagsArray.length}}
+            {{#each view.content.tagsArray}}
+              <span class="label radius">{{this}}</span>
+            {{/each}}
+          {{/if}}
         </td>
         <td>
           {{#if view.content.published}}
@@ -53,16 +55,23 @@
           {{/if}}
         </td>
         <td>
-          {{#if view.content.editable}}
-            <a class="button tiny" {{action editArticle view.content href=true}}>
-              <span class="foundicon-edit"></span> Edit
-            </a>
-            <a class="button tiny alert" onclick="confirm('Sure?');">
-              <span class="foundicon-remove"></span> Delete
-            </a>
-          {{else}}
-            Editing {{view.content.engine}} not yet supported
-          {{/if}}
+          {{#view App.SplitDropdown contentBinding="view.content"}}
+            <a {{action editArticle view.content href=true}}>Edit</a>
+            <span></span>
+            <ul>
+              <li>
+                <a {{bindAttr href="view.content.permalink"}} target="_blank">
+                  Preview
+                </a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <a onclick="confirm('Sure?');">
+                  Delete
+                </a>
+              </li>
+            </ul>
+          {{/view}}
         </td>
       {{/collection}}
     </table>
@@ -108,8 +117,22 @@
         </div>
       </div>
 
-      <label>Content</label>
-      {{view App.CKEditorView valueBinding="body"}}
+      <div class="row" style="margin-top: 10px">
+        <div class="twelve columns">
+          <label>
+            Content
+            {{#if WYSIWYGable}}
+            {{else}}
+              <span class="label secondary">.{{engine}} files cannot use the WYSIWYG editor</span>
+            {{/if}}
+          </label>
+          {{#if WYSIWYGable}}
+            {{view App.CKEditorView valueBinding="body"}}
+          {{else}}
+            {{view Ember.TextArea valueBinding="raw" rows="18"}}
+          {{/if}}
+        </div>
+      </div>
 
       <hr>
       <div class="row">

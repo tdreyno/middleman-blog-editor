@@ -15,6 +15,7 @@ module Middleman
 
       def article_to_h(a)
         frontmatter_data = []
+
         a.data.each do |k,v|
           frontmatter_data << {
             :id => "#{a.slug}-#{k}",
@@ -24,11 +25,15 @@ module Middleman
           }
         end
 
+        data, raw = @middleman.frontmatter_manager.data(a.source_file)
+
         [{
           :id => a.slug,
           :body => a.body,
+          :raw => raw,
           :date => a.date,
           :slug => a.slug,
+          :source => a.source_file.sub(@middleman.root, ''),
           :frontmatters => frontmatter_data.map { |d| d[:id] },
           :engine => File.extname(a.source_file).sub(/^\./, '')
         }, frontmatter_data]
@@ -69,11 +74,8 @@ module Middleman
         @middleman.sitemap.rebuild_resource_list!
       end
 
-      def write_body(a, json)
-        data, body = @middleman.frontmatter_manager.data(a.source_file)
-        data = {}.merge(data)
-        body = json["body"]
-
+      def write_body(a, body)
+        data = {}.merge(@middleman.frontmatter_manager.data(a.source_file)[0])
         write_article(a, data, body)
       end
 
@@ -115,7 +117,9 @@ module Middleman
 
         a = article_by_slug(params[:slug])
 
-        write_body(a, json["article"])
+        body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
+
+        write_body(a, body)
         
         {}.to_json
       end
