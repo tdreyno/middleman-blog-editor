@@ -19,7 +19,7 @@
         <h2>All Articles</h2>
       </div>
       <div class="four columns">
-        <p class="right"><button class="button small"><span class="foundicon-plus"></span> Create New Article</button></p>
+        <p class="right"><a class="button small" {{action createArticle}}><span class="foundicon-plus"></span> Create New Article</a></p>
       </div>
     </div>
 
@@ -43,7 +43,7 @@
         <td>
           {{#if view.content.tagsArray.length}}
             {{#each view.content.tagsArray}}
-              <span class="label radius">{{this}}</span>
+              <span class="label round">{{this}}</span>
             {{/each}}
           {{/if}}
         </td>

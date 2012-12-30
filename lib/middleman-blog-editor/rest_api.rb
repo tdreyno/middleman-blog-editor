@@ -1,15 +1,19 @@
+require "fileutils"
 require "sinatra"
 require "json"
+# require 'monitor'
 
 module Middleman
   module BlogEditor
     class RestAPI < ::Sinatra::Base
       # set :static, true
       # set :root, File.dirname(__FILE__)
+      set :lock, true
 
       def initialize(middleman, options)
         @middleman = middleman
         @options = options
+        @lock = Monitor.new
         super()
       end
 
@@ -57,45 +61,59 @@ module Middleman
       end
       
       def article_by_slug(slug)
-        a = @middleman.blog.articles.find { |b| b.slug === slug }
+        @lock.synchronize do
+          a = @middleman.blog.articles.find { |b| b.slug === slug }
 
-        return halt(404) unless a
+          return halt(404) unless a
 
-        a
+          a
+        end
       end
 
-      def write_article(a, data, body)
-        contents = %Q{#{data.to_yaml}---
+      def write_article(source_file, data, body)
+        @lock.synchronize do
+          contents = ""
+          if !data.nil? && data.keys.length > 0
+            contents << %Q{#{data.to_yaml}---\n\n}
+          end
 
-#{body}}
+          contents << body
 
-        File.open(a.source_file, 'w') {|f| f.write(contents) }
+          FileUtils.mkdir_p(File.dirname(source_file))
+          File.open(source_file, 'w') {|f| f.write(contents) }
 
-        @middleman.sitemap.rebuild_resource_list!
+          @middleman.files.reload_path(@middleman.source, true)
+          @middleman.sitemap.rebuild_resource_list!
+          @middleman.sitemap.ensure_resource_list_updated!
+        end
       end
 
       def write_body(a, body)
-        data = {}.merge(@middleman.frontmatter_manager.data(a.source_file)[0])
-        write_article(a, data, body)
+        # @lock.synchronize do
+          data = {}.merge(@middleman.frontmatter_manager.data(a.source_file)[0])
+          write_article(a.source_file, data, body)
+        # end
       end
 
       def write_frontmatter(a, json)
-        data, body = @middleman.frontmatter_manager.data(a.source_file)
-        data = {}.merge(data)
+        # @lock.synchronize do
+          data, body = @middleman.frontmatter_manager.data(a.source_file)
+          data = {}.merge(data)
 
-        key = json["key"]
+          key = json["key"]
 
-        if json["value"] === "true" || json["value"] === "false"
-          data[key] = json["value_boolean"]
-        else
-          data[key] = json["value"]
-        end
+          if json["value"] === "true" || json["value"] === "false"
+            data[key] = json["value_boolean"]
+          else
+            data[key] = json["value"]
+          end
 
-        if key === "published" && data[key] === true
-          data.delete(key)
-        end
+          if key === "published" && data[key] === true
+            data.delete(key)
+          end
 
-        write_article(a, data, body)
+          write_article(a.source_file, data, body)
+        # end
       end
 
       get '/articles/:slug' do
@@ -124,15 +142,46 @@ module Middleman
         {}.to_json
       end
 
+      post '/articles' do
+        content_type :json
+
+        json = JSON.parse(request.body.read)
+        date = Date.parse(json["article"]["date"])
+        source_path = File.join(@middleman.source_dir, @middleman.blog.options.sources)
+        
+        source_file = source_path.
+          sub(":year",  date.strftime('%Y')).
+          sub(":month", date.strftime('%m')).
+          sub(":day",   date.strftime('%d')).
+          sub(":title", json["article"]["slug"])
+
+        body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
+        write_article("#{source_file}.#{json["article"]["engine"]}", nil, body)
+        
+        {}.to_json
+      end
+
+      def update_frontmatter(fm)
+        a = article_by_slug(fm["article_id"])
+
+        write_frontmatter(a, fm)
+      end
+
       put '/frontmatters/:slug' do
         content_type :json
 
         json = JSON.parse(request.body.read)
+        update_frontmatter(json["frontmatter"])
 
-        a = article_by_slug(json["frontmatter"]["article_id"])
+        {}.to_json
+      end
 
-        write_frontmatter(a, json["frontmatter"])
+      post '/frontmatters' do
+        content_type :json
 
+        json = JSON.parse(request.body.read)
+        update_frontmatter(json["frontmatter"])
+        
         {}.to_json
       end
 
