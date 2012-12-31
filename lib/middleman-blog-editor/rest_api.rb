@@ -14,59 +14,84 @@ module Middleman
         @middleman = middleman
         @options = options
         @lock = Monitor.new
+
+        @next_blog_editor_id = 0
+        scan_for_next_blog_editor_id
+        ensure_every_article_has_an_id
+
         super()
       end
 
+      def scan_for_next_blog_editor_id
+        @middleman.blog.articles.each { |a|
+          if a.data["blog_editor_id"]
+            if a.data["blog_editor_id"] > @next_blog_editor_id
+              @next_blog_editor_id = a.data["blog_editor_id"]
+            end
+          end
+        }
+      end
+
+      def ensure_every_article_has_an_id
+        @middleman.blog.articles.each { |a|
+          if !a.data["blog_editor_id"]
+            @next_blog_editor_id += 1
+
+            write_frontmatter(a, {
+              "key" => "blog_editor_id",
+              "value" => @next_blog_editor_id
+            })
+          end
+        }
+      end
+
       def article_to_h(a)
-        frontmatter_data = []
-
-        a.data.each do |k,v|
-          frontmatter_data << {
-            :id => "#{a.slug}-#{k}",
-            :key => k,
-            :value => v,
-            :article_id => a.slug
-          }
-        end
-
         data, raw = @middleman.frontmatter_manager.data(a.source_file)
 
-        [{
-          :id => a.slug,
+        {
+          :id => a.data["blog_editor_id"],
           :body => a.body,
           :raw => raw,
           :date => a.date,
           :slug => a.slug,
           :source => a.source_file.sub(@middleman.root, ''),
-          :frontmatters => frontmatter_data.map { |d| d[:id] },
+          :frontmatter => a.data.to_json,
           :engine => File.extname(a.source_file).sub(/^\./, '')
-        }, frontmatter_data]
+        }
       end
 
       get '/articles' do
         content_type :json
-        articles = []
-        fmdata = []
-
-        @middleman.blog.articles.each { |a| 
-          out = article_to_h(a)
-          articles << out[0]
-          fmdata << out[1]
-        }
 
         {
-          :frontmatters => fmdata.flatten,
-          :articles => articles
+          :articles => @middleman.blog.articles.map { |a| 
+            article_to_h(a)
+          }
         }.to_json
       end
       
-      def article_by_slug(slug)
+      def article_by_id(id)
         @lock.synchronize do
-          a = @middleman.blog.articles.find { |b| b.slug === slug }
+          a = @middleman.blog.articles.find do |b|
+            b.data["blog_editor_id"] === id.to_i
+          end
 
+          if !a
+            $stderr.puts id.to_i, @middleman.blog.articles.length, @last_article_id.inspect
+          end
           return halt(404) unless a
 
           a
+        end
+      end
+
+      def delete_article(a)
+        @lock.synchronize do
+          FileUtils.rm(a.source_file)
+
+          @middleman.files.reload_path(@middleman.source, true)
+          @middleman.sitemap.rebuild_resource_list!
+          @middleman.sitemap.ensure_resource_list_updated!
         end
       end
 
@@ -88,22 +113,17 @@ module Middleman
         end
       end
 
-      def write_body(a, body)
-        # @lock.synchronize do
-          data = {}.merge(@middleman.frontmatter_manager.data(a.source_file)[0])
-          write_article(a.source_file, data, body)
-        # end
-      end
-
       def write_frontmatter(a, json)
-        # @lock.synchronize do
+        @lock.synchronize do
           data, body = @middleman.frontmatter_manager.data(a.source_file)
           data = {}.merge(data)
 
           key = json["key"]
 
-          if json["value"] === "true" || json["value"] === "false"
-            data[key] = json["value_boolean"]
+          if json["value"] === "true"
+            data[key] = true
+          elsif json["value"] === "false"
+            data[key] = false
           else
             data[key] = json["value"]
           end
@@ -113,31 +133,30 @@ module Middleman
           end
 
           write_article(a.source_file, data, body)
-        # end
+        end
       end
 
-      get '/articles/:slug' do
+      get '/articles/:id' do
         content_type :json
 
-        a = article_by_slug(params[:slug])
-        out = article_to_h(a)
+        a = article_by_id(params[:id])
 
         {
-          :frontmatters => out[1],
-          :article => out[0]
+          :article => article_to_h(a)
         }.to_json
       end
 
-      put '/articles/:slug' do
+      put '/articles/:id' do
         content_type :json
 
         json = JSON.parse(request.body.read)
 
-        a = article_by_slug(params[:slug])
+        a = article_by_id(params[:id])
 
         body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
 
-        write_body(a, body)
+        data = JSON.parse(json["article"]["frontmatter"])
+        write_article(a.source_file, data, body)
         
         {}.to_json
       end
@@ -156,33 +175,29 @@ module Middleman
           sub(":title", json["article"]["slug"])
 
         body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
-        write_article("#{source_file}.#{json["article"]["engine"]}", nil, body)
+        data = JSON.parse(json["article"]["frontmatter"])
+        @next_blog_editor_id += 1
+
+        data["blog_editor_id"] = @next_blog_editor_id
+        source_file = "#{source_file}.#{json["article"]["engine"]}"
+        write_article("#{source_file}.#{json["article"]["engine"]}", data, body)
         
-        {}.to_json
+        a = article_by_id(@next_blog_editor_id)
+
+        {
+          :article => article_to_h(a)
+        }.to_json
       end
 
-      def update_frontmatter(fm)
-        a = article_by_slug(fm["article_id"])
-
-        write_frontmatter(a, fm)
-      end
-
-      put '/frontmatters/:slug' do
+      delete '/articles/:id' do
         content_type :json
 
-        json = JSON.parse(request.body.read)
-        update_frontmatter(json["frontmatter"])
+        a = article_by_id(params[:id])
 
-        {}.to_json
-      end
+        delete_article(a)
 
-      post '/frontmatters' do
-        content_type :json
-
-        json = JSON.parse(request.body.read)
-        update_frontmatter(json["frontmatter"])
-        
-        {}.to_json
+        {
+        }.to_json
       end
 
     end

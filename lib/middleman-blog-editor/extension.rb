@@ -36,6 +36,8 @@ module Middleman::BlogEditor
       options.mount_at    ||= '/editor'
       # options.accounts    ||= []
 
+      # ::Middleman::Sitemap::Resource.send :include, BlogArticleMethods
+
       app.after_configuration do
         mm = self
         if !mm.build?
@@ -55,4 +57,16 @@ module Middleman::BlogEditor
     end
     alias :included :registered
   end
+
+  # module BlogArticleMethods
+  #   def blog_editor_id
+  #     if @blog_editor_id
+  #       @@blog_editor_next_id ||= 1
+  #       @blog_editor_id = @@blog_editor_next_id
+  #       @@blog_editor_next_id += 1
+  #     end
+
+  #     @blog_editor_id
+  #   end
+  # end
 end
