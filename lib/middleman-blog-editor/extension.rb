@@ -38,15 +38,17 @@ module Middleman::BlogEditor
 
       app.after_configuration do
         mm = self
-        map(options.mount_at) do
-          # use ::Rack::Auth::Basic, "Restricted Area" do |username, password|
-          #   options.accounts.any? { |a| a.auth?(username, password) }
-          # end
-          
-          run ::Middleman::BlogEditor::EditorUI.new(mm, options)
+        if !mm.build?
+          map(options.mount_at) do
+            # use ::Rack::Auth::Basic, "Restricted Area" do |username, password|
+            #   options.accounts.any? { |a| a.auth?(username, password) }
+            # end
+            
+            run ::Middleman::BlogEditor::EditorUI.new(mm, options)
 
-          map('/api') do
-            run ::Middleman::BlogEditor::RestAPI.new(mm, options)
+            map('/api') do
+              run ::Middleman::BlogEditor::RestAPI.new(mm, options)
+            end
           end
         end
       end
