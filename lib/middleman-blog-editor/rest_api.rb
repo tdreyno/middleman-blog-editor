@@ -40,13 +40,9 @@ module Middleman
             write_frontmatter(a, {
               "key" => "blog_editor_id",
               "value" => @next_blog_editor_id
-            }, false)
+            })
           end
         }
-
-        @middleman.files.reload_path(@middleman.source)
-        @middleman.sitemap.rebuild_resource_list!
-        @middleman.sitemap.ensure_resource_list_updated!
       end
 
       def article_to_h(a)
@@ -89,16 +85,11 @@ module Middleman
       def delete_article(a, rebuild=true)
         @lock.synchronize do
           FileUtils.rm(a.source_file)
-
-          if rebuild
-            @middleman.files.reload_path(@middleman.source)
-            @middleman.sitemap.rebuild_resource_list!
-            @middleman.sitemap.ensure_resource_list_updated!
-          end
+          @middleman.files.did_delete(a.source_file.sub(@middleman.root, '').sub(/^\//, ''))
         end
       end
 
-      def write_article(source_file, data, body, rebuild=true)
+      def write_article(source_file, data, body)
         @lock.synchronize do
           contents = ""
           if !data.nil? && data.keys.length > 0
@@ -110,15 +101,11 @@ module Middleman
           FileUtils.mkdir_p(File.dirname(source_file))
           File.open(source_file, 'w') {|f| f.write(contents) }
 
-          if rebuild
-            @middleman.files.reload_path(@middleman.source)
-            @middleman.sitemap.rebuild_resource_list!
-            @middleman.sitemap.ensure_resource_list_updated!
-          end
+          @middleman.files.did_change(source_file.sub(@middleman.root, '').sub(/^\//, ''))
         end
       end
 
-      def write_frontmatter(a, json, rebuild=true)
+      def write_frontmatter(a, json)
         @lock.synchronize do
           data, body = @middleman.frontmatter_manager.data(a.source_file)
           data = {}.merge(data)
@@ -137,7 +124,7 @@ module Middleman
             data.delete(key)
           end
 
-          write_article(a.source_file, data, body, rebuild)
+          write_article(a.source_file, data, body)
         end
       end
 
