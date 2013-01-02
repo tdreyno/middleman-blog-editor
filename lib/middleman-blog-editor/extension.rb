@@ -1,5 +1,5 @@
-require "pry"
-require "pry-debugger"
+# require "pry"
+# require "pry-debugger"
 require "middleman-blog-editor/editor_ui"
 require "middleman-blog-editor/rest_api"
 
@@ -48,7 +48,9 @@ module Middleman::BlogEditor
             #   options.accounts.any? { |a| a.auth?(username, password) }
             # end
             
-            use Rack::Deflater
+            if options.use_minified_assets
+              use Rack::Deflater
+            end
 
             run ::Middleman::BlogEditor::EditorUI.new(mm, options)
 

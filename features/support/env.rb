@@ -1,4 +1,5 @@
 require 'pry'
+require 'pry-debugger'
 
 PROJECT_ROOT_PATH = File.dirname(File.dirname(File.dirname(__FILE__)))
 require "middleman-core"

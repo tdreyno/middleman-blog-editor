@@ -104,7 +104,7 @@ module Middleman
           FileUtils.mkdir_p(File.dirname(source_file))
           File.open(source_file, 'w') {|f| f.write(contents) }
 
-          @middleman.files.reload_path(@middleman.source, true)
+          @middleman.files.reload_path(@middleman.source)
           @middleman.sitemap.rebuild_resource_list!
           @middleman.sitemap.ensure_resource_list_updated!
         end
