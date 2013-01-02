@@ -13,7 +13,7 @@ Feature: Rest API
     And the Server is running
     When I go to "/editor/api/articles"
     Then I should not see "Not Found"
-    And there should be 6 frontmatter models and 2 article models
+    And there should be 2 article models
 
   Scenario: Alt Root
     Given a fixture app "blog-app"
@@ -32,7 +32,7 @@ Feature: Rest API
     Then I should see "Not Found"
     When I go to "/my_editor/api/articles"
     Then I should not see "Not Found"
-    And there should be 6 frontmatter models and 2 article models
+    And there should be 2 article models
 
   Scenario: With extra articles
     Given a fixture app "blog-app"
@@ -55,7 +55,7 @@ Feature: Rest API
     And the Server is running
     When I go to "/editor/api/articles"
     Then I should not see "Not Found"
-    And there should be 7 frontmatter models and 3 article models
+    And there should be 3 article models
 
   Scenario: Get Single Article
     Given a fixture app "blog-app"
@@ -71,12 +71,13 @@ Feature: Rest API
       """
       ---
       title: "Happy New Year"
+      blog_editor_id: 201
       ---
 
       2013!
       """
     And the Server is running
-    When I go to "/editor/api/articles/happy-new-year"
+    When I go to "/editor/api/articles/201"
     Then I should not see "Not Found"
     And the article title should be "Happy New Year"
     Then I should see "2013!"

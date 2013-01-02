@@ -76,9 +76,6 @@ module Middleman
             b.data["blog_editor_id"] === id.to_i
           end
 
-          if !a
-            $stderr.puts id.to_i, @middleman.blog.articles.length, @last_article_id.inspect
-          end
           return halt(404) unless a
 
           a
