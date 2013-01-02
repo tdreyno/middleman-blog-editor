@@ -106,8 +106,17 @@
             <label>Title</label>
             {{view Ember.TextField valueBinding="title"}}
 
-            <label>Date</label>
-            {{view App.DateField valueBinding="dateString"}}
+            <div class="row">
+              <div class="six columns">
+                <label>Date</label>
+                {{view App.DateField valueBinding="dateString"}}
+              </div>
+
+              <div class="six columns">
+                <label>Tags <span class="label secondary">Comma separated</span></label>
+                {{view Ember.TextField valueBinding="tags" placeholder="tag1, tag2, etc"}}
+              </div>
+            </div>
 
             <label for="published">
               {{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}
@@ -117,11 +126,11 @@
           </div>
 
           <div class="six columns">
+            <label>Slug <span class="label secondary">Will change filename</span></label>
+            {{view Ember.TextField valueBinding="slug"}}
+
             <label>URL</label>
             {{view Ember.TextField valueBinding="permalink" disabled="true"}}
-
-            <label>Tags</label>
-            {{view Ember.TextField valueBinding="tags" disabled="true"}}
 
             {{#if frontMatterPairs.length}}
               <label>FrontMatter <span class="label secondary">readonly</span></label>

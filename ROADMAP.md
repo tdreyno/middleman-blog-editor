@@ -11,12 +11,13 @@ Purchasing will give access to private Rubygems server, direct gem file download
 * WYSIWYG .html.erb files
 * Plaintext .html.* files
 * Publish/Unpublished Flag
+* Tag Editing
 
 ## 0.4 ($12)
 
-* Tag Editing
 * Frontmatter Editing
 * Direct link to editor from in the site preview
+* Markdown Preview
 
 ## 0.6 ($18)
 

@@ -150,16 +150,23 @@ module Middleman
 
         a = article_by_id(params[:id])
 
-        data = JSON.parse(json["article"]["frontmatter"])
-        write_article(a.source_file, data, json["article"]["raw"])
+        new_source_file = get_source_file(json)
         
-        {}.to_json
+        if a.source_file != new_source_file
+          FileUtils.rm(a.source_file)
+        end
+
+        data = JSON.parse(json["article"]["frontmatter"])
+        write_article(new_source_file, data, json["article"]["raw"])
+        
+        a = article_by_id(params[:id])
+        
+        {
+          :article => article_to_h(a)
+        }.to_json
       end
 
-      post '/articles' do
-        content_type :json
-
-        json = JSON.parse(request.body.read)
+      def get_source_file(json)
         date = Date.parse(json["article"]["date"])
         source_path = File.join(@middleman.source_dir, @middleman.blog.options.sources)
         
@@ -169,13 +176,22 @@ module Middleman
           sub(":day",   date.strftime('%d')).
           sub(":title", json["article"]["slug"])
 
+        source_file = "#{source_file}.#{json["article"]["engine"]}"
+        source_file
+      end
+
+      post '/articles' do
+        content_type :json
+
+        json = JSON.parse(request.body.read)
+        source_file = get_source_file(json)
+
         body = json["article"]["raw"]
         data = JSON.parse(json["article"]["frontmatter"])
         @next_blog_editor_id += 1
 
         data["blog_editor_id"] = @next_blog_editor_id
-        source_file = "#{source_file}.#{json["article"]["engine"]}"
-        write_article("#{source_file}.#{json["article"]["engine"]}", data, body)
+        write_article(source_file, data, body)
         
         a = article_by_id(@next_blog_editor_id)
 
