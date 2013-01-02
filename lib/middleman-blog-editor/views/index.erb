@@ -1,147 +1,191 @@
-<script type='text/x-handlebars' data-template-name='application'>
-  <div class="row">
-    <div class="twelve columns">
-      <h2><a {{action goHome this}}><%= @options.admin_title %></a></h2>
-      <hr />
-    </div>
-  </div>
+<!DOCTYPE html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1'>
+  <title><%= @options.admin_title %></title>
 
-  <div class="row">
-    {{outlet body}}
-  </div>
+  <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/vendor/ui-lightness/jquery-ui-1.9.2.custom.min.css">
+  <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/vendor/foundation.min.css">
+  <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/vendor/general_foundicons.css">
+  <!-- <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/vendor/responsive-tables.css"> -->
+  <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/app.css">
 
-</script>
+  <script src="<%= @options.mount_at %>/javascripts/vendor/modernizr.foundation.js"></script>
 
-<script type='text/x-handlebars' data-template-name='articles'>
-  <div class="twelve columns">
+  <!--[if lt IE 8]>
+    <link rel="stylesheet" href="<%= @options.mount_at %>/stylesheets/vendor/general_foundicons_ie7.css">
+  <![endif]-->
+</head>
+<body>
+  <script type='text/x-handlebars' data-template-name='application'>
     <div class="row">
-      <div class="eight columns">
-        <h2>All Articles</h2>
-      </div>
-      <div class="four columns">
-        <p class="right"><a class="button small" {{action createArticle}}><span class="foundicon-plus"></span> Create New Article</a></p>
-      </div>
+      {{outlet body}}
     </div>
+  </script>
 
-    <hr>
+  <script type='text/x-handlebars' data-template-name='articles'>
+    <ul class="breadcrumbs">
+      <li class="current"><a>All Articles</a></li>
+    </ul>
 
-    <table width="100%">
-      <tr>
-        <th>Title</th>
-        <th>Date</th>
-        <th>Tags</th>
-        <th>Pub?</th>
-        <th>Actions</th>
-      </tr>
-      {{#collection contentBinding="controllers.articlesController" tagName="tbody"}}
-        <td>
-          {{view App.TooltipSpan titleBinding="view.content.source" contentBinding="view.content.title"}}
-        </td>
-        <td>
-          {{view App.TooltipSpan titleBinding="view.content.dateStringFull" contentBinding="view.content.dateString"}}
-        </td>
-        <td>
-          {{#if view.content.tagsArray.length}}
-            {{#each view.content.tagsArray}}
-              <span class="label round">{{this}}</span>
-            {{/each}}
-          {{/if}}
-        </td>
-        <td>
-          {{#if view.content.published}}
-            <span class="foundicon-checkmark"></span>
-          {{else}}
-            <span class="foundicon-error"></span>
-          {{/if}}
-        </td>
-        <td>
-          {{#view App.SplitDropdown contentBinding="view.content"}}
-            <a {{action editArticle view.content href=true}}>Edit</a>
-            <span></span>
-            <ul>
-              <li>
-                <a {{bindAttr href="view.content.permalink"}} target="_blank">
-                  Preview
-                </a>
-              </li>
-              <li class="divider"></li>
-              <li>
-                <a {{action deleteArticle view.content}}>
-                  Delete
-                </a>
-              </li>
-            </ul>
-          {{/view}}
-        </td>
-      {{/collection}}
-    </table>
-  </div>
-</script>
+    <div class="twelve columns">
+      <h6 class="left"><span class="label secondary">{{publishedCount}} Published Articles. {{unpublishedCount}}  Unpublished. {{tagsCount}} Tags.</span></h6>
 
-<script type='text/x-handlebars' data-template-name='edit-article'>
-  <div class="twelve columns">
-    <h3>Edit Article</h3>
+      <p class="right"><a class="button small" {{action createArticle}}><span class="foundicon-plus"></span> Create New Article</a></p>
 
-    <form class="custom">
-
-      <div class="row">
-        <div class="six columns">
-          <label>Title</label>
-          {{view Ember.TextField valueBinding="title"}}
-
-          <label>Date</label>
-          {{view App.DateField valueBinding="dateString"}}
-
-          <label for="published">
-            {{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}
-            {{view Ember.View tagName="span" classNames="custom checkbox" classNameBindings="published:checked"}}
-            Published?
-          </label>
-        </div>
-
-        <div class="six columns">
-          <label>URL</label>
-          {{view Ember.TextField valueBinding="permalink" disabled="true"}}
-
-          <label>Tags</label>
-          {{view Ember.TextField valueBinding="tags" disabled="true"}}
-
-          {{#if frontMatterPairs.length}}
-            <label>FrontMatter <span class="label secondary">readonly</span></label>
-            <ol>
-              {{#each frontMatterPairs}}
-                <li>{{key}}: {{value}}</li>
+      <table width="100%">
+        <tr>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Tags</th>
+          <th>Pub?</th>
+          <th>Actions</th>
+        </tr>
+        {{#collection contentBinding="controllers.articlesController" tagName="tbody"}}
+          <td>
+            {{view App.TooltipSpan titleBinding="view.content.source" contentBinding="view.content.title"}}
+          </td>
+          <td>
+            {{view App.TooltipSpan titleBinding="view.content.dateStringFull" contentBinding="view.content.dateString"}}
+          </td>
+          <td>
+            {{#if view.content.tagsArray.length}}
+              {{#each view.content.tagsArray}}
+                <span class="label round">{{this}}</span>
               {{/each}}
-            </ol>
-          {{/if}}
-        </div>
-      </div>
-
-      <div class="row" style="margin-top: 10px">
-        <div class="twelve columns">
-          <label>
-            Content
-            {{#if WYSIWYGable}}
-            {{else}}
-              <span class="label secondary">.{{engine}} files cannot use the WYSIWYG editor</span>
             {{/if}}
-          </label>
-          {{#if WYSIWYGable}}
-            {{view App.CKEditorView valueBinding="body"}}
-          {{else}}
-            {{view Ember.TextArea valueBinding="raw" rows="18"}}
-          {{/if}}
-        </div>
-      </div>
+          </td>
+          <td>
+            {{#if view.content.published}}
+              <span class="foundicon-checkmark"></span>
+            {{else}}
+              <span class="foundicon-error"></span>
+            {{/if}}
+          </td>
+          <td>
+            {{#view App.SplitDropdown contentBinding="view.content"}}
+              <a {{action editArticle view.content href=true}}>Edit</a>
+              <span></span>
+              <ul>
+                <li>
+                  <a {{bindAttr href="view.content.permalink"}} target="_blank">
+                    Preview
+                  </a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                  <a {{action deleteArticle view.content}}>
+                    Delete
+                  </a>
+                </li>
+              </ul>
+            {{/view}}
+          </td>
+        {{/collection}}
+      </table>
+    </div>
+  </script>
 
-      <hr>
-      <div class="row">
-        <div class="twelve columns">
-          <p class="left"><a class="button alert" {{action cancel}}>Cancel</a></p>
-          <p class="right"><a class="button success" {{action save}}>Save Article</a></p>
-        </div>
-      </div>
+  <script type='text/x-handlebars' data-template-name='edit-article'>
+    <ul class="breadcrumbs">
+      <li><a {{action goHome this}}>All Articles</a></li>
+      <li class="current"><a>Edit Article</a></li>
+    </ul>
 
-    </form>
-  </div>
-</script>
+    <div class="twelve columns">
+
+      <form class="custom">
+
+        <div class="row">
+          <div class="six columns">
+            <label>Title</label>
+            {{view Ember.TextField valueBinding="title"}}
+
+            <label>Date</label>
+            {{view App.DateField valueBinding="dateString"}}
+
+            <label for="published">
+              {{view Ember.Checkbox checkedBinding="published" id="published" classNames="hidden"}}
+              {{view Ember.View tagName="span" classNames="custom checkbox" classNameBindings="published:checked"}}
+              Published?
+            </label>
+          </div>
+
+          <div class="six columns">
+            <label>URL</label>
+            {{view Ember.TextField valueBinding="permalink" disabled="true"}}
+
+            <label>Tags</label>
+            {{view Ember.TextField valueBinding="tags" disabled="true"}}
+
+            {{#if frontMatterPairs.length}}
+              <label>FrontMatter <span class="label secondary">readonly</span></label>
+              <ol>
+                {{#each frontMatterPairs}}
+                  <li>{{key}}: {{value}}</li>
+                {{/each}}
+              </ol>
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: 10px">
+          <div class="twelve columns">
+            <label>
+              Content
+              {{#if WYSIWYGable}}
+              {{else}}
+                <span class="label secondary">.{{engine}} files cannot use the WYSIWYG editor</span>
+              {{/if}}
+            </label>
+            {{#if WYSIWYGable}}
+              {{view App.CKEditorView valueBinding="raw"}}
+            {{else}}
+              {{view Ember.TextArea valueBinding="raw" rows="18"}}
+            {{/if}}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="twelve columns">
+            <p class="left"><a class="button alert" {{action cancel}}>Cancel</a></p>
+            <p class="right"><a class="button success" {{action save}}>Save Article</a></p>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </script>
+
+  <script>
+    ROOT_DIR = "<%= @options.mount_at.sub(/^\//, '') %>";
+    URL_FORMAT = "<%= @middleman.blog.options.permalink %>";
+    ENV = {
+      EXTEND_PROTOTYPES: {
+        'Function': true,
+        'String': true,
+        'Array': false
+      }
+    };
+  </script>
+  <script src="<%= @options.mount_at %>/javascripts/vendor/ckeditor/ckeditor.js"></script>
+  <script src="<%= @options.mount_at %>/javascripts/vendor/jquery-1.8.3.min.js"></script>
+  <script src="<%= @options.mount_at %>/javascripts/vendor/foundation.min.js"></script>
+  <script src="<%= @options.mount_at %>/javascripts/vendor/jquery-ui-1.9.2.custom.min.js"></script>
+  <% if @options.use_minified_assets %>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/handlebars-1.0.0.beta.6.js"></script>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/ember-latest.min.js"></script>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/ember-data-latest.min.js"></script>
+  <% else %>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/handlebars-1.0.0.beta.6.js"></script>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/ember-latest.js"></script>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/ember-data-latest.js"></script>
+  <% end %>
+  <script src="<%= @options.mount_at %>/javascripts/app.js"></script>
+</body>
+</html>

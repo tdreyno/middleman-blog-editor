@@ -10,7 +10,8 @@ module Middleman::BlogEditor
     KEYS = [
             :mount_at,
             :accounts,
-            :admin_title
+            :admin_title,
+            :use_minified_assets
            ]
     
     KEYS.each do |name|
@@ -32,8 +33,9 @@ module Middleman::BlogEditor
       options = Options.new(options_hash)
       yield options if block_given?
 
-      options.admin_title ||= 'Middleman Blog Editor'
+      options.admin_title ||= 'Blog Editor'
       options.mount_at    ||= '/editor'
+      options.use_minified_assets = true if options.use_minified_assets.nil?
       # options.accounts    ||= []
 
       # ::Middleman::Sitemap::Resource.send :include, BlogArticleMethods
@@ -46,6 +48,8 @@ module Middleman::BlogEditor
             #   options.accounts.any? { |a| a.auth?(username, password) }
             # end
             
+            use Rack::Deflater
+
             run ::Middleman::BlogEditor::EditorUI.new(mm, options)
 
             map('/api') do

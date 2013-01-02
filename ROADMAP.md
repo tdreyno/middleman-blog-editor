@@ -22,6 +22,7 @@ Purchasing will give access to private Rubygems server, direct gem file download
 
 * Article Searching (Full Text)
 * Article Sorting (By Tags, Date, etc)
+* List Paging
 
 ## 0.8 ($24)
 

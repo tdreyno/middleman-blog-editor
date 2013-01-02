@@ -50,7 +50,7 @@ module Middleman
 
         {
           :id => a.data["blog_editor_id"],
-          :body => a.body,
+          # :body => a.body,
           :raw => raw,
           :date => a.date,
           :slug => a.slug,
@@ -153,10 +153,8 @@ module Middleman
 
         a = article_by_id(params[:id])
 
-        body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
-
         data = JSON.parse(json["article"]["frontmatter"])
-        write_article(a.source_file, data, body)
+        write_article(a.source_file, data, json["article"]["raw"])
         
         {}.to_json
       end
@@ -174,7 +172,7 @@ module Middleman
           sub(":day",   date.strftime('%d')).
           sub(":title", json["article"]["slug"])
 
-        body = json["article"]["engine"] === "erb" ? json["article"]["body"] : json["article"]["raw"]
+        body = json["article"]["raw"]
         data = JSON.parse(json["article"]["frontmatter"])
         @next_blog_editor_id += 1
 
