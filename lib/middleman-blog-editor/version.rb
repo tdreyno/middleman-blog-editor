@@ -1,5 +1,5 @@
 module Middleman
   module BlogEditor
-    VERSION = "0.2.3"
+    VERSION = "0.4.0"
   end
 end

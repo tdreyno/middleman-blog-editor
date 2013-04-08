@@ -153,7 +153,11 @@
               {{/if}}
             </label>
             {{#if WYSIWYGable}}
-              {{view App.CKEditorView valueBinding="raw"}}
+              {{#if isERB}}
+                {{view App.CKEditorView valueBinding="raw"}}
+              {{else}}
+                {{view App.EpicEditorView valueBinding="raw"}}
+              {{/if}}
             {{else}}
               {{view Ember.TextArea valueBinding="raw" rows="18"}}
             {{/if}}
@@ -188,10 +192,12 @@
   <script src="<%= @options.mount_at %>/javascripts/vendor/responsive-tables.js"></script>
   <script src="<%= @options.mount_at %>/javascripts/vendor/jquery-ui-1.9.2.custom.min.js"></script>
   <% if @options.use_minified_assets %>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/epiceditor/js/epiceditor.min.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/handlebars-1.0.0.beta.6.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/ember-latest.min.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/ember-data-latest.min.js"></script>
   <% else %>
+    <script src="<%= @options.mount_at %>/javascripts/vendor/epiceditor/js/epiceditor.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/handlebars-1.0.0.beta.6.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/ember-latest.js"></script>
     <script src="<%= @options.mount_at %>/javascripts/vendor/ember-data-latest.js"></script>
