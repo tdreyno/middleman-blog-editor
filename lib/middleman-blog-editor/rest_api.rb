@@ -82,6 +82,18 @@ module Middleman
         end
       end
 
+      def article_by_url(url)
+        @lock.synchronize do
+          a = @middleman.blog.articles.find do |b|
+            b.url === url
+          end
+
+          return halt(404) unless a
+
+          a
+        end
+      end
+
       def delete_article(a, rebuild=true)
         @lock.synchronize do
           FileUtils.rm(a.source_file)
@@ -126,6 +138,16 @@ module Middleman
 
           write_article(a.source_file, data, body)
         end
+      end
+
+      post '/articles/find' do
+        content_type :json
+
+        a = article_by_url(params[:url])
+
+        {
+          :article => article_to_h(a)
+        }.to_json
       end
 
       get '/articles/:id' do

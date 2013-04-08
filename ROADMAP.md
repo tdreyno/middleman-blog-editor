@@ -15,12 +15,12 @@ Purchasing will give access to private Rubygems server, direct gem file download
 
 ## 0.4 ($12)
 
-* Frontmatter Editing
 * Direct link to editor from in the site preview
 * Markdown Preview
 
 ## 0.6 ($18)
 
+* Frontmatter Editing
 * Article Searching (Full Text)
 * Article Sorting (By Tags, Date, etc)
 * List Paging

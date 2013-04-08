@@ -36,7 +36,17 @@
     <div class="twelve columns">
       <h6 class="left"><span class="label secondary">{{publishedCount}} Published Articles. {{unpublishedCount}}  Unpublished. {{tagsCount}} Tags.</span></h6>
 
-      <p class="right"><a class="button small" {{action createArticle}}><span class="foundicon-plus"></span> Create New Article</a></p>
+      <div class="right">
+        <div class="small button split dropdown">
+          <a {{action createArticleERb}}>Create New Article (ERb)</a>
+          <span></span>
+          <ul class="no-hover">
+            <li>
+              <a {{action createArticleMarkdown}}>Create New Article (Markdown)</a>
+            </li>
+          </ul>
+        </div>
+      </div>
 
       <table width="100%">
         <tr>
