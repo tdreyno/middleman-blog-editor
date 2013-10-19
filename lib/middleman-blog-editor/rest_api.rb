@@ -22,6 +22,14 @@ module Middleman
         super()
       end
 
+      def get_frontmatter_data(filename)
+        if defined?(::Middleman::Extension)
+          @middleman.extensions[:frontmatter].data(filename)
+        else
+          @middleman.frontmatter_manager.data(filename)
+        end
+      end
+
       def scan_for_next_blog_editor_id
         @middleman.blog.articles.each { |a|
           if a.data["blog_editor_id"]
@@ -46,7 +54,7 @@ module Middleman
       end
 
       def article_to_h(a)
-        data, raw = @middleman.frontmatter_manager.data(a.source_file)
+        data, raw = get_frontmatter_data(a.source_file)
 
         {
           :id => a.data["blog_editor_id"],
@@ -119,7 +127,7 @@ module Middleman
 
       def write_frontmatter(a, json)
         @lock.synchronize do
-          data, body = @middleman.frontmatter_manager.data(a.source_file)
+          data, body = get_frontmatter_data(a.source_file)
           data = {}.merge(data)
 
           key = json["key"]

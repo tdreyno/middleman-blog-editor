@@ -12,9 +12,9 @@ module Middleman
         super()
       end
 
-    	get '/' do
-    		erb :index
-    	end
+      get '/' do
+        erb :index
+      end
     end
   end
 end
