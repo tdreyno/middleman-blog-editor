@@ -19,6 +19,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   
   s.add_dependency("sinatra", ["~> 1.3.0"])
-  s.add_dependency("middleman", [">= 3.0.8"])
-  s.add_dependency("middleman-blog", [">= 3.1.0"])
+  s.add_dependency("middleman", ["~> 3.2"])
+  s.add_dependency("middleman-blog", ["~> 3.5"])
 end

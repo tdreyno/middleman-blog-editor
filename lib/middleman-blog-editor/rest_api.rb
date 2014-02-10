@@ -23,11 +23,7 @@ module Middleman
       end
 
       def get_frontmatter_data(filename)
-        if defined?(::Middleman::Extension)
-          @middleman.extensions[:frontmatter].data(filename)
-        else
-          @middleman.frontmatter_manager.data(filename)
-        end
+        @middleman.extensions[:frontmatter].data(filename)
       end
 
       def scan_for_next_blog_editor_id
@@ -176,7 +172,7 @@ module Middleman
         a = article_by_id(params[:id])
 
         new_source_file = get_source_file(json)
-        
+
         if a.source_file != new_source_file
           FileUtils.rm(a.source_file)
         end

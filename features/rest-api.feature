@@ -117,11 +117,11 @@ Feature: Rest API
     When I prepare to edit article at "/editor/api/articles/100"
     And I update the article date to "2012/12/26"
     When I save the article to "/editor/api/articles/100"
-    Then a file named "source/2012/12/25/merry-christmas.html.markdown" should not exist
-    And a file named "source/2012/12/26/merry-christmas.html.markdown" should exist
+    Then a file named "source/2012/12/25/merry-christmas.html.md" should not exist
+    And a file named "source/2012/12/26/merry-christmas.html.md" should exist
     When I go to "/editor/api/articles/100"
     Then the article date should be "2012/12/26"
-    Then the article source should be "/source/2012/12/26/merry-christmas.html.markdown"
+    Then the article source should be "/source/2012/12/26/merry-christmas.html.md"
 
   Scenario: Updating Slug
     Given a fixture app "blog-app"
@@ -129,8 +129,8 @@ Feature: Rest API
     When I prepare to edit article at "/editor/api/articles/100"
     And I update the article slug to "merrier-christmas"
     When I save the article to "/editor/api/articles/100"
-    Then a file named "source/2012/12/25/merry-christmas.html.markdown" should not exist
-    And a file named "source/2012/12/25/merrier-christmas.html.markdown" should exist
+    Then a file named "source/2012/12/25/merry-christmas.html.md" should not exist
+    And a file named "source/2012/12/25/merrier-christmas.html.md" should exist
     When I go to "/editor/api/articles/100"
     Then the article slug should be "merrier-christmas"
-    Then the article source should be "/source/2012/12/25/merrier-christmas.html.markdown"
+    Then the article source should be "/source/2012/12/25/merrier-christmas.html.md"

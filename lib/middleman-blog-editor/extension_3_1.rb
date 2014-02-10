@@ -49,7 +49,8 @@ module Middleman
         status, headers, response = @app.call(env)
 
         url = env["PATH_INFO"]
-        if @mm.blog.path_matcher.match(url.sub(/^\//, ''))
+        matcher = @mm.blog.respond_to?(:path_matcher) ? @mm.blog.path_matcher.match(url.sub(/^\//, '')) : @mm.blog.source_template.extract(url.sub(/^\//, ''))
+        if matcher
           html = ::Middleman::Util.extract_response_text(response)
 
           a = @mm.blog.articles.find do |b|
